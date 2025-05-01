@@ -688,6 +688,7 @@ MonoBehaviour:
   playerInput: {fileID: 2091188604493852060}
   starterAssetsInputs: {fileID: 5357327381636132590}
   thirdPersonController: {fileID: 8316537437038068401}
+  follow: {fileID: 6027655644816556218}
 --- !u!1 &1405252354815579907
 GameObject:
   m_ObjectHideFlags: 0
