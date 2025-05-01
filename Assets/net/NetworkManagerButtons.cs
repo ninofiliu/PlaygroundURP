@@ -1,8 +1,9 @@
-using System.Linq;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
 public class NetworkManagerButtons : MonoBehaviour {
+
   void Start() {
     if (Application.isBatchMode) {
       Debug.Log("Server env detected, starting NGO server");
@@ -19,4 +20,6 @@ public class NetworkManagerButtons : MonoBehaviour {
     Debug.Log("Joining...");
     NetworkManager.Singleton.StartClient();
   }
+
+  public void Save() {}
 }
