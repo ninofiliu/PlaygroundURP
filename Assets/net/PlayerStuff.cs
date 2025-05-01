@@ -6,14 +6,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [System.Serializable]
-public class PlayerSaveData {
+public class PlayerData {
   public float x;
   public float y;
 }
 
 public class PlayerStuff : NetworkBehaviour {
   public float moveSpeed = 5f;
-  public string playerId;
   public NetworkVariable<FixedString64Bytes> playerName =
       new NetworkVariable<FixedString64Bytes>(
           readPerm: NetworkVariableReadPermission.Everyone,
@@ -37,40 +36,51 @@ public class PlayerStuff : NetworkBehaviour {
     }
   }
 
-  public void Load() {
+  [Rpc(SendTo.Server)]
+  public void LoadRpc() {
     if (!IsServer)
       return;
 
-    string path =
-        Path.Combine(Application.persistentDataPath, $"{playerId}.json");
+    string path = Path.Combine(Application.persistentDataPath,
+                               $"{playerName.Value}.json");
     if (File.Exists(path)) {
-      Debug.Log($"found save file for {playerId}");
+      Debug.Log($"found save file for {playerName.Value}");
       string json = File.ReadAllText(path);
-      PlayerSaveData data = JsonUtility.FromJson<PlayerSaveData>(json);
-      transform.position.Set(data.x, data.y, 0);
+      PlayerData data = JsonUtility.FromJson<PlayerData>(json);
+      Debug.Log(
+          $"current {transform.position}, will update to {data.x},{data.y}");
+      transform.position = new Vector3(data.x, data.y, 0);
+      Debug.Log($"updated position {transform.position}");
     } else {
-      Debug.Log($"No save file found for {playerId}");
+      Debug.Log($"No save file found for {playerName.Value}");
     }
   }
 
-  public void Save() {
+  [Rpc(SendTo.Server)]
+  public void SaveRpc() {
     if (!IsServer)
       return;
 
-    PlayerSaveData saveData = new PlayerSaveData { x = transform.position.x,
-                                                   y = transform.position.y };
+    Debug.Log("Saving...");
+    PlayerData saveData =
+        new PlayerData { x = transform.position.x, y = transform.position.y };
     string json = JsonUtility.ToJson(saveData);
-    string path =
-        Path.Combine(Application.persistentDataPath, $"{playerId}.json");
+    string path = Path.Combine(Application.persistentDataPath,
+                               $"{playerName.Value}.json");
     File.WriteAllText(path, json);
+    Debug.Log($"file saved to {path}");
   }
 
   public override void OnNetworkSpawn() {
     base.OnNetworkSpawn();
+    Debug.Log($"network spawn {playerName.Value}");
     playerName.OnValueChanged +=
         (FixedString64Bytes oldname, FixedString64Bytes newname) => {
           Debug.Log($"player renamed {oldname} -> {newname}");
           GetComponentInChildren<TMP_Text>().text = newname.ToString();
         };
+    GetComponentInChildren<TMP_Text>().text = playerName.Value.ToString();
   }
+
+  public void Start() { Debug.Log($"start {playerName.Value}"); }
 }

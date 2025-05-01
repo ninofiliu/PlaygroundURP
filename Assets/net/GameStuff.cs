@@ -27,4 +27,16 @@ public class GameStuff : NetworkBehaviour {
         NetworkManager.LocalClient.PlayerObject.GetComponent<PlayerStuff>();
     player.playerName.Value = playerIdInput.text;
   }
+
+  public void Save() {
+    var player =
+        NetworkManager.LocalClient.PlayerObject.GetComponent<PlayerStuff>();
+    player.SaveRpc();
+  }
+
+  public void Load() {
+    var player =
+        NetworkManager.LocalClient.PlayerObject.GetComponent<PlayerStuff>();
+    player.LoadRpc();
+  }
 }
